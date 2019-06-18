@@ -14,5 +14,5 @@ General Contribution Rules:
 2. Generic LArTPC reconstruction code should go into [lartpc-mlreco3d](https://github.com/DeepLearnPhysics/lartpc_mlreco3d)
 3. __No Jupyter Notebooks!__
 4. Make sure temporary/generated files are in `.gitignore` and not committed.
-5. Please comment your code and put a docstring at the head of functions.
+5. Please comment your code and put a docstring at the head of functions. 
 
