@@ -30,7 +30,6 @@ def calculate_sep(data_vec0, data_vec1):
         return 0, 0, np.linalg.norm(d)
     # minimum separation
     sep = np.sqrt(np.linalg.norm(d)**2 + 2*np.dot(d,v0)*s0 - 2*np.dot(d,v1)*s1 - 2*np.dot(v1,v0)*s0*s1 + s0**2 + s1**2)
-    print('pair separation: {}'.format(sep))
     return s0, s1, sep
 
 def get_best_pair_mask(data_dir, minimum_sep=3., exclude=np.empty(0)):

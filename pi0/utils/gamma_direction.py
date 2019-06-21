@@ -32,7 +32,6 @@ def dbscan_find_primary(xyz_hit, eps, min_samples):
     core_hits_mask = np.zeros_like(db.labels_, dtype=bool)
     core_hits_mask[db.core_sample_indices_] = True
     labels = db.labels_
-#     print('dbscan labels: {}'.format(labels))
     (unique_labels, counts) = np.unique(labels[labels != -1], return_counts=True)
     max_label = -1
     if any(counts >= 0):
@@ -52,7 +51,6 @@ def pca(xyz_hit):
     cov = np.cov(xyz_hit, rowvar=False)
     evals, evecs = np.linalg.eigh(cov)
     return_order = np.argsort(evals)[::-1]
-#     print((evecs.T)[return_order], evals[return_order])
     return (evecs.T)[return_order], evals[return_order]
 
 def compute_parity_flip(xyz_hit, vector, origin=(0,0,0)):

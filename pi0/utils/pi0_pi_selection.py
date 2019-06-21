@@ -17,9 +17,7 @@ def calculate_vertex_loc(gamma0_vec, gamma1_vec):
         length 4 vector of (x,y,z,l) of vertex, where l is the separation of the two gamma vectors at the vertex
     
     '''
-    print(gamma0_vec, gamma1_vec)
     s0, s1, l = gamma2_selection.calculate_sep(gamma0_vec, gamma1_vec)
-    print('sep',s0,s1,l)
     x0 = gamma0_vec[:3] + s0 * gamma0_vec[-3:]
     x1 = gamma1_vec[:3] + s1 * gamma1_vec[-3:]
     vtx = np.mean([x0, x1],axis=0)
@@ -45,15 +43,11 @@ def do_selection(label_data, gamma0_data, gamma1_data, mip_label=1, tolerance=10
     vtx_info = calculate_vertex_loc(gamma0_data, gamma1_data)
     distances = gamma_direction.norm(track_data[:,:3], vtx_info[:3])
     min_dist_idx = np.argmin(distances)
-    print('vtx',vtx_info)
-    print('closest',distances[min_dist_idx])
     if distances[min_dist_idx] > tolerance:
         return np.empty((0,5))
     best_hit = track_data[min_dist_idx]
-    print('close hit',best_hit)
     return_arr = best_hit
     return_arr[4] = vtx_info[-1]
-    print('return data',return_arr)
     return return_arr
 
 
