@@ -4,7 +4,7 @@ from mlreco.utils.gnn.compton import filter_compton
 from mlreco.visualization.voxels import scatter_label
 from mlreco.utils.gnn.primary import assign_primaries3
 
-def find_shower_cone(dbscan, groups, em_primaries, energy_data, length_factor=4.3, slope_percentile=55, slope_factor=6.1, verbose=False):
+def find_shower_cone(dbscan, groups, em_primaries, energy_data, types, length_factor=4.3, slope_percentile=80, slope_factor=5.2, verbose=False):
     """
     dbscan: data parsed from "dbscan_label": ["parse_dbscan", "sparse3d_fivetypes"]
     groups: data parsed from "group_label": ["parse_cluster3d_clean", "cluster3d_mcst", "sparse3d_fivetypes"]
@@ -51,7 +51,9 @@ def find_shower_cone(dbscan, groups, em_primaries, energy_data, length_factor=4.
 
             classified_indices = []
             for j in range(len(dbscan)):
-                point = dbscan[j]
+                point = types[j]
+                if point[-1] != 2:
+                    continue
                 coord = point[:3]
                 axis_dist = np.dot(coord - em_point, cone_axis)
                 if 0 <= axis_dist and axis_dist <= cone_length:
