@@ -65,6 +65,6 @@ def find_shower_cone(dbscan, groups, em_primaries, energy_data, types, length_fa
             classified_indices = np.array(classified_indices)
             selected_voxels.append(classified_indices)
         else:
-            selected_voxels.append([])
+            selected_voxels.append(np.array([]))
 
     return selected_voxels
