@@ -32,12 +32,12 @@ def calculate_sep(data_vec0, data_vec1):
     sep = np.sqrt(np.linalg.norm(d)**2 + 2*np.dot(d,v0)*s0 - 2*np.dot(d,v1)*s1 - 2*np.dot(v1,v0)*s0*s1 + s0**2 + s1**2)
     return s0, s1, sep
 
-def get_best_pair_mask(data_dir, minimum_sep=3., exclude=np.empty(0)):
+def get_best_pair_mask(data_dir, maximum_sep, exclude=np.empty(0)):
     '''
     Finds the indexes of the best pair
     Args:
         data_dir - an Nx7 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,dx,dy,dz)
-        minimum_sep - a minimum separation for best pair, otherwise returns empty array
+        maximum_sep - a maximum separation for best pair, otherwise returns empty array
         exclude - indexes to exclude from calculation (array)
     Returns:
         vector of length 2 of indexes of best pair
@@ -48,7 +48,7 @@ def get_best_pair_mask(data_dir, minimum_sep=3., exclude=np.empty(0)):
     if n < 2:
         return np.empty(0), np.empty((n,n))
 #     assoc_dir, nonassoc_dir = np.empty((2,5)), np.empty((n-2,5))
-    pair_sep = np.full((n,n), minimum_sep)
+    pair_sep = np.full((n,n), maximum_sep)
     for idx0, dir0 in enumerate(data_dir):
         for idx1, dir1 in enumerate(data_dir):
             if idx0 >= idx1:
@@ -59,17 +59,17 @@ def get_best_pair_mask(data_dir, minimum_sep=3., exclude=np.empty(0)):
             pair_sep[idx0, idx1] = sep
     best_match = np.where(pair_sep == np.amin(pair_sep))
     return_pair_sep = np.triu(pair_sep, 1)
-    if any(pair_sep[best_match] >= minimum_sep):
+    if any(pair_sep[best_match] >= maximum_sep):
         return np.empty(0), return_pair_sep
 #     print(return_pair_sep)
     return best_match, return_pair_sep
 
-def do_iterative_selection(data_dir, minimum_sep=3.):
+def do_iterative_selection(data_dir, maximum_sep=3.):
     '''
     Selects the best candidate pairs of vertexes with shower directions defined by a unit vector. Is performed iteratively until no more candidates are found.
     Args:
         data_dir - an Nx7 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,dx,dy,dz)
-        minimum_sep - a minimum separation for best pairs
+        maximum_sep - a maximum separation for best pairs
     Returns:
         Nx5 matrix containing (x,y,z,batch,pair number), pair number is 0 if non match, 1 if best match, 2 if second best match, ...
         NxN matrix containing backwards point of closest approach for each shower pair (upper triangular values
@@ -82,7 +82,7 @@ def do_iterative_selection(data_dir, minimum_sep=3.):
     curr_label = 1
     sep_matrix = np.empty((n,n))
     while True:
-        best_pair, iter_sep_matrix = get_best_pair_mask(data_dir, minimum_sep=minimum_sep, exclude=excluded)
+        best_pair, iter_sep_matrix = get_best_pair_mask(data_dir, maximum_sep=maximum_sep, exclude=excluded)
         if curr_label == 1:
             sep_matrix = iter_sep_matrix
         if not len(best_pair):
