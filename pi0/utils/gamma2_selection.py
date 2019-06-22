@@ -36,7 +36,7 @@ def get_best_pair_mask(data_dir, maximum_sep, exclude=np.empty(0)):
     '''
     Finds the indexes of the best pair
     Args:
-        data_dir - an Nx7 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,dx,dy,dz)
+        data_dir - an Nx8 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,valid,dx,dy,dz)
         maximum_sep - a maximum separation for best pair, otherwise returns empty array
         exclude - indexes to exclude from calculation (array)
     Returns:
@@ -55,6 +55,8 @@ def get_best_pair_mask(data_dir, maximum_sep, exclude=np.empty(0)):
                 continue
             if idx0 in exclude or idx1 in exclude:
                 continue
+            if not data_dir[idx0][4] or not data_dir[idx1][4]:
+                continue
             s0, s1, sep = calculate_sep(dir0, dir1)
             pair_sep[idx0, idx1] = sep
     best_match = np.where(pair_sep == np.amin(pair_sep))
@@ -68,7 +70,7 @@ def do_iterative_selection(data_dir, maximum_sep=3.):
     '''
     Selects the best candidate pairs of vertexes with shower directions defined by a unit vector. Is performed iteratively until no more candidates are found.
     Args:
-        data_dir - an Nx7 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,dx,dy,dz)
+        data_dir - an Nx8 matrix containing shower directions associated 1:1 for vertexes (x,y,z,batch,valid,dx,dy,dz)
         maximum_sep - a maximum separation for best pairs
     Returns:
         Nx5 matrix containing (x,y,z,batch,pair number), pair number is 0 if non match, 1 if best match, 2 if second best match, ...

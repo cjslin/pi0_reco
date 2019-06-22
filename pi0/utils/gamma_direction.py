@@ -84,19 +84,24 @@ def do_calculation(data, vtx_data, radius=10., eps=2., min_samples=5, shower_lab
         min_samples - min_samples for dbscan
         shower_label - label number for filtering ``data`` by fivetypes label
     Returns:
-        a numpy array Mx7 containing [event, [x,y,z,batch,x_comp,y_comp,z_comp]]. XX_comp are the components of the unit vectors determined by the PCA
+        a numpy array Mx8 containing (x,y,z,batch,valid,x_comp,y_comp,z_comp) across vertexes. XX_comp are the components of the unit vectors determined by the PCA, valid is false if fit fails
     
     '''
     shower_hits_mask = data[:,-1] == shower_label
     shower_hits = data[shower_hits_mask] # select shower-like hits
-    
-    return_data = np.empty((len(vtx_data),7))
+    return_data = np.empty((len(vtx_data),8))
     for idx, vtx in enumerate(vtx_data):
         filtered_hits_mask = norm(shower_hits[:,:3], vtx[:3]) < radius # select hits within a radius
         filtered_hits = shower_hits[filtered_hits_mask]
+        if len(filtered_hits) == 0:
+            return_data[idx] = np.array(list(vtx[:4]) + list([False,0,0,0]))
+            continue
         associated_hits_mask = dbscan_find_primary(filtered_hits[:,:3], eps=eps, min_samples=min_samples) # associate hits with dbscan
         associated_hits = filtered_hits[associated_hits_mask]
+        if len(associated_hits) <= 2:
+            return_data[idx] = np.array(list(vtx[:4]) + list([False,0,0,0]))
+            continue
         pca_vecs, pca_vals = pca(associated_hits[:,:3])
         parity = compute_parity_flip(associated_hits[:,:3], pca_vecs[0], origin=vtx[:3]) # reverse vector in case it points in the antiparallel direction
-        return_data[idx] = np.array(list(vtx[:4]) + list(pca_vecs[0]*parity))
+        return_data[idx] = np.array(list(vtx[:4]) + [True] + list(pca_vecs[0]*parity))
     return return_data
