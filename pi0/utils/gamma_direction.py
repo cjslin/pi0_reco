@@ -15,7 +15,9 @@ def norm(xyz_hit, xyz_vtx):
         an Nx1 array of distances for each hit location to the vtx
     '''
     xyz_d = xyz_hit[:,:3] - xyz_vtx
-    return np.array([np.sqrt(xyz[0]**2 + xyz[1]**2 + xyz[2]**2) for xyz in xyz_d])
+    distances = np.sqrt(np.sum(xyz_d**2, axis=1))
+    return distances
+#     return np.array([np.sqrt(xyz[0]**2 + xyz[1]**2 + xyz[2]**2) for xyz in xyz_d])
 
 def dbscan_find_primary(xyz_hit, eps, min_samples):
     '''
