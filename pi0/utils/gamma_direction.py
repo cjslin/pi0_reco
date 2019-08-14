@@ -92,18 +92,27 @@ def do_calculation(data, vtx_data, radius=10., eps=2., min_samples=5, shower_lab
     shower_hits_mask = data[:,-1] == shower_label
     shower_hits = data[shower_hits_mask] # select shower-like hits
     return_data = np.empty((len(vtx_data),8))
+    return_pca_data = np.empty((len(vtx_data),6))
+    return_pca_nhits = np.empty((len(vtx_data),6))
     for idx, vtx in enumerate(vtx_data):
         filtered_hits_mask = norm(shower_hits[:,:3], vtx[:3]) < radius # select hits within a radius
         filtered_hits = shower_hits[filtered_hits_mask]
         if len(filtered_hits) == 0:
             return_data[idx] = np.array(list(vtx[:4]) + list([False,0,0,0]))
+            return_pca_data[idx] = np.array(list(vtx[:4]) + list([False,0]))
+            return_pca_nhits[idx] = np.array(list(vtx[:4]) + list([False,0]))
             continue
         associated_hits_mask = dbscan_find_primary(filtered_hits[:,:3], eps=eps, min_samples=min_samples) # associate hits with dbscan
         associated_hits = filtered_hits[associated_hits_mask]
         if len(associated_hits) <= 2:
             return_data[idx] = np.array(list(vtx[:4]) + list([False,0,0,0]))
+            return_pca_data[idx] = np.array(list(vtx[:4]) + list([False,0]))
+            return_pca_nhits[idx] = np.array(list(vtx[:4]) + list([False,0]))
             continue
+        selected_hits = associated_hits
         pca_vecs, pca_vals = pca(associated_hits[:,:3])
         parity = compute_parity_flip(associated_hits[:,:3], pca_vecs[0], origin=vtx[:3]) # reverse vector in case it points in the antiparallel direction
         return_data[idx] = np.array(list(vtx[:4]) + [True] + list(pca_vecs[0]*parity))
-    return return_data
+        return_pca_data[idx] = np.array(list(vtx[:4]) + [True] + list([np.sqrt(pca_vals[1]**2 + pca_vals[2]**2)]))
+        return_pca_nhits[idx] = np.array(list(vtx[:4]) + [True] + list([len(associated_hits)]))
+    return return_data, return_pca_data, return_pca_nhits
