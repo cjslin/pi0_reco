@@ -2,7 +2,7 @@ import numpy as np
 from mlreco.utils.gnn.cluster import form_clusters_new
 from mlreco.utils.gnn.compton import filter_compton
 from mlreco.visualization.voxels import scatter_label
-from mlreco.utils.gnn.primary import assign_primaries3
+from mlreco.utils.gnn.primary import assign_primaries_unique
 
 # TODO make sure entire primary cluster is assigned even if it's outside the cone
 
@@ -16,7 +16,7 @@ def find_shower_cone(dbscan, groups, em_primaries, energy_data, types, length_fa
     returns a list of length len(em_primaries) containing np arrays, each of which contains the indices corresponding to the voxels in the cone of the corresponding EM primary
     """
     clusts = form_clusters_new(dbscan)
-    assigned_primaries = assign_primaries3(em_primaries, clusts, groups).astype(int)
+    assigned_primaries = assign_primaries_unique(em_primaries, clusts, groups).astype(int)
     selected_voxels = []
     true_voxels = []
     for i in range(len(assigned_primaries)):
